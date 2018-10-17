@@ -25,7 +25,8 @@ class Controller{
 
   static displayIngredientsForm(ingredients){
     let parentNode = document.querySelector("#iceCreamCheckboxes")
-    ingredients.forEach(ingredient => parentNode.appendChild(ingredient.node))
+    // ingredients.forEach(ingredient => parentNode.appendChild(ingredient.node))
+    parentNode.appendChild(Ingredient.CreateIngredientsForm())
   }
 
   static createIceCreams(iceCreamData){
@@ -40,14 +41,14 @@ class Controller{
     parentNode.appendChild(iceCream.node)
 
     document.querySelector(`#delete-${iceCream.id}`).addEventListener("click",Controller.deleteIceCream)
-    document.querySelector(`#edit-${iceCream.id}`).addEventListener("click",Controller.editIceCream)
+    document.querySelector(`#edit-${iceCream.id}`).addEventListener("click",Controller.createEditIceCreamForm)
 
   }
 
   static createIceCreamFromForm(e){
     e.preventDefault()
-    let iceCreamName = document.querySelector("#iceCreamName").value
-    let checkboxes = document.querySelectorAll(".checkbox")
+    let iceCreamName = createIceCreamForm.querySelector("#iceCreamName").value
+    let checkboxes = createIceCreamForm.querySelectorAll(".checkbox")
     let ingredientIds = []
     checkboxes.forEach(function(checkbox){
       if (checkbox.checked){
@@ -71,9 +72,64 @@ class Controller{
       iceCream.node.remove()
     })
   }
-  static editIceCream(e){
-    let iceCream = allIceCreams.find(iceCream=> iceCream.id = e.target.dataset.id)
-    // iceCream.node.querySelector("ul").remove()
-    debugger
+  static createEditIceCreamForm(e){
+    let iceCream = allIceCreams.find(iceCream=> iceCream.id == e.target.dataset.id)
+    iceCream.node.querySelector("ul").remove()
+    let iceCreamCard = document.querySelector(`#icecream-${iceCream.id}`)
+    iceCreamCard.appendChild(iceCream.createEditForm())
+    Controller.removeEditAndDeleteButtons(iceCream)
+    Controller.addSubmitButton(iceCream)
+    iceCream.node.querySelector("h3").remove()
+    Controller.addEditNameInput(iceCream)
   }
+
+  static addEditNameInput(iceCream){
+    let iceCreamCard = document.querySelector(`#icecream-${iceCream.id}`)
+    let input = document.createElement("input")
+                 input.type = "text"
+                 input.id = `name-${iceCream.id}`
+                 input.value = `${iceCream.name}`
+                 input.dataset.id = `${iceCream.id}`
+   iceCreamCard.insertBefore(input, iceCreamCard.children[0]);
+  }
+
+  static addSubmitButton(iceCream){
+    let iceCreamCard = document.querySelector(`#icecream-${iceCream.id}`)
+    let button = document.createElement("button")
+                 button.id = `submit-${iceCream.id}`
+                 button.dataset.id = `${iceCream.id}`
+                 button.innerText = "Submit"
+    iceCreamCard.insertBefore(button, iceCreamCard.children[2]);
+    button.addEventListener("click", Controller.editIceCream)
+  }
+  static removeEditAndDeleteButtons(iceCream){
+    let edit = document.querySelector(`#edit-${iceCream.id}`)
+    let deleteButton = document.querySelector(`#delete-${iceCream.id}`)
+    edit.remove()
+    deleteButton.remove()
+  }
+
+  static editIceCream(e){
+    let iceCream = allIceCreams.find(icecream=> icecream.id == e.target.dataset.id)
+    let iceCreamCard = document.querySelector(`#icecream-${iceCream.id}`)
+    let nameInput = iceCreamCard.querySelector(`#name-${iceCream.id}`).value
+    let checkboxes = iceCreamCard.querySelectorAll(".checkbox")
+    let ingredientIds = []
+    checkboxes.forEach(function(checkbox){
+      if (checkbox.checked){
+        ingredientIds.push(checkbox.dataset.id)
+      }
+    })
+    iceCream.ingredients_ids = ingredientIds
+    iceCream.name = nameInput
+    
+    // updates Ice Cream instance with new Dom element
+    iceCream.createDomElement()
+    Adapter.updateIceCream(iceCream).then(function(ice_cream){
+
+      iceCreamCard.remove()
+      Controller.displayIceCream(iceCream)
+    })
+  }
+
 }

@@ -13,6 +13,18 @@ class IceCream{
   get ingredients(){
   return allIngredients.filter(ingredient => this.ingredients_ids.includes(`${ingredient.id}`))
   }
+  createEditForm(){
+    // retrieve ingredients form node form Ingredients Class
+    let form = Ingredient.CreateIngredientsForm()
+    form.querySelectorAll(".checkbox").forEach(function(li){
+      // Auto-Checks Ingredients which iceCream Instance Alreay Includes
+      if (this.ingredients_ids.includes(li.dataset.id)){
+        li.checked = true;
+      }
+    }.bind(this))
+    
+    return form;
+  }
 
 
   static deleteIceCream(iceCreamId){

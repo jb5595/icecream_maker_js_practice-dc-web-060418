@@ -34,4 +34,17 @@ class Adapter{
       }
     }).then(response=>response.json())
   }
+
+  static updateIceCream(iceCream){
+    const url = BaseURL + `ice_cream/${iceCream.id}`
+    let data = {"name":iceCream.name, "ingredients":iceCream.ingredients_ids}
+    return fetch(url,{
+      method: "PATCH",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(response =>response.json())
+  }
 }
